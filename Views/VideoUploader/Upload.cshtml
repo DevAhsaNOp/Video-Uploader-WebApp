@@ -430,7 +430,10 @@
                     title: 'Video Uploaded',
                     html: '<p>Video Uploaded Completed successfully!</p>' +
                         '<a href="' + data.videourl + '" target="blank"> Video Url</a>',
-                    confirmButtonText: 'Ok'
+                    confirmButtonText: 'Ok',
+                    allowOutsideClick: false,
+                    closeOnClickOutside: false,
+                    allowEscapeKey: false
                 }).then((result) => {
                     if (result.isConfirmed) {
                         document.getElementById('categoryForm').reset();
