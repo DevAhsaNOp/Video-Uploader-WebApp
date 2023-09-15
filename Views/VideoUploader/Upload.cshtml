@@ -1,0 +1,470 @@
+﻿@model VideoUploaderWebApp.Models.ViewModels.ValidateVideoInformation
+
+@{
+    Layout = null;
+}
+@if (User.Identity.IsAuthenticated)
+{
+
+    <!DOCTYPE html>
+    <html lang="en">
+
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta name="description" content="Askbootstrap">
+        <meta name="author" content="Askbootstrap">
+        <title>Test</title>
+
+        <link href="~/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+        <link href="~/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+
+        <link href="~/css/style.css" rel="stylesheet">
+        <script src="~/Scripts/jquery-3.4.1.min.js"></script>
+        <script src="~/Scripts/jquery.validate.min.js"></script>
+        <script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
+        <script src="~/Scripts/jquery.unobtrusive-ajax.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.27/dist/sweetalert2.all.min.js"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.27/dist/sweetalert2.min.css">
+        <style>
+
+            @@keyframes fadeIn {
+                0% {
+                    opacity: 0;
+                }
+
+                100% {
+                    opacity: 1;
+                }
+            }
+
+            #file-details-screen {
+                opacity: 0;
+                animation: fadeIn 0.5s ease-in-out;
+            }
+
+            .loader {
+                position: fixed;
+                left: 0px;
+                top: 0px;
+                width: 100%;
+                height: 100%;
+                z-index: 9999;
+                background: url(../../img/loading.gif) 50% 50% no-repeat #f9f9f9;
+                opacity: 0.5;
+            }
+        </style>
+    </head>
+
+    <body id="page-top">
+        <nav class="navbar navbar-expand navbar-light bg-white static-top osahan-nav sticky-top">
+            &nbsp;&nbsp;
+            <button class="btn btn-link btn-sm text-secondary order-1 order-sm-0" id="sidebarToggle">
+                <i class="fas fa-bars"></i>
+            </button> &nbsp;&nbsp;
+            <a class="navbar-brand mr-1" href="#"><img class="img-fluid" alt="" src="~/img/logo.png"></a>
+
+            <form class="d-none d-md-inline-block form-inline ml-auto mr-0 mr-md-5 my-2 my-md-0 osahan-navbar-search">
+                <div class="input-group">
+
+                </div>
+            </form>
+
+            <ul class="navbar-nav ml-auto ml-md-0 osahan-right-navbar">
+                <li class="nav-item mx-1">
+                    <a class="nav-link" href="#">
+                        [@Session["Username"].ToString()]
+                    </a>
+
+                </li>
+                <li class="nav-item mx-1">
+                    <a class="nav-link" href="@Url.Action("logout","Account")">
+                        Logout
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        <div id="wrapper">
+
+            <ul class="sidebar navbar-nav">
+                <li class="nav-item active">
+                    <a class="nav-link" href="#">
+                        <i class="fas fa-fw fa-home"></i>
+                        <span>Video</span>
+                    </a>
+                </li>
+            </ul>
+            <div id="loader" class="loader"></div>
+            @using (Ajax.BeginForm("Upload", "VideoUploader", new AjaxOptions() { HttpMethod = "POST", LoadingElementId = "loader", OnBegin = "checkChkBox", OnSuccess = "startUpload" }, htmlAttributes: new { enctype = "multipart/form-data", @id = "categoryForm" }))
+            {
+                <div id="upload-screen" style="width: 100vw !important;">
+                    <div id="content-wrapper">
+                        <div class="container-fluid pt-5 pb-5">
+                            <div class="row">
+                                <div class="col-md-8 mx-auto text-center upload-video pt-5 pb-5">
+                                    <div id="drop-area">
+                                        <h1><i class="fas fa-file-upload text-primary"></i></h1>
+                                        <h4 class="mt-4">Click the button or drag and drop<br /> a video file here.</h4>
+                                        <label class="btn btn-outline-primary mt-3" for="fileInputButton">Choose Video</label>
+                                        <input type="file" name="file" id="fileInput" accept=".mp4" required style="display: none;">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <footer class="sticky-footer" style="margin-top: 230px">
+                            <div class="container">
+                                <div class="row no-gutters">
+                                    <div class="col-lg-6 col-sm-6">
+                                        <p class="mt-1 mb-0">
+                                            &copy; Copyright 2021 <strong class="text-dark">Company Name</strong>. All
+                                            Rights Reserved<br>
+                                        </p>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </footer>
+                    </div>
+                </div>
+                <div id="file-details-screen" style="visibility: hidden; display: none; width: 100vw !important;">
+                    <div id="content-wrapper">
+                        <div class="container-fluid upload-details">
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="main-title">
+                                        <h6>Upload Details</h6>
+                                    </div>
+                                </div>
+                                <div class="col-lg-2">
+                                    <div class="imgplace"></div>
+                                </div>
+                                <div class="col-lg-10">
+                                    <div class="osahan-title">Video Title Goes Here</div>
+                                    <div class="osahan-size">[VideoSize] MB</div>
+                                    <div class="osahan-progress">
+                                        <div class="progress">
+                                            <div id="upload-progress" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"
+                                                 aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%"></div>
+                                        </div>
+                                        <div class="osahan-close">
+                                            <a href="#"><i class="fas fa-times-circle"></i></a>
+                                        </div>
+                                    </div>
+                                    <div class="osahan-desc">Your Video is still uploading, please keep this page open until it's done.</div>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="osahan-form">
+                                        <div class="row">
+                                            <div class="col-lg-12">
+                                                <div class="form-group">
+                                                    <label for="e1">Video Title</label>
+                                                    @Html.ValidationMessageFor(m => m.VideoTitle, "", new { @class = "text-danger" })
+                                                    @Html.EditorFor(m => m.VideoTitle, new { htmlAttributes = new { @class = "form-control", placeholder = "Video Title Goes Here", @type = "text" } })
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-12">
+                                                <div class="form-group">
+                                                    <label for="e2">About</label>
+                                                    @Html.ValidationMessageFor(m => m.About, "", new { @class = "text-danger" })
+                                                    @Html.TextAreaFor(m => m.About, new { @class = "form-control", placeholder = "Video Description Goes Here", rows = "3" })
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-lg-6">
+                                                <div class="form-group">
+                                                    <label for="e7">
+                                                        Tags
+                                                    </label>
+                                                    @Html.ValidationMessageFor(m => m.Tags, "", new { @class = "text-danger" })
+                                                    @Html.EditorFor(m => m.Tags, new { htmlAttributes = new { @class = "form-control", placeholder = "Gaming, PS4", @type = "text" } })
+                                                </div>
+                                            </div>
+
+                                            <div class="col-lg-6">
+                                                <div class="form-group">
+                                                    <label for="e9">Language in Video (Optional)</label>
+                                                    @Html.ValidationMessageFor(model => model.Language, "", new { @class = "text-danger" })
+                                                    @Html.DropDownListFor(model => model.Language, (IEnumerable<SelectListItem>)ViewBag.Languages, "---Select Language---", htmlAttributes: new { @class = "form-control" })
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                        <div class="row ">
+                                            <div class="col-lg-12">
+                                                <div class="main-title">
+                                                    <label>Category</label>
+                                                    <span id="categoryValidation" class="text-danger"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row category-checkbox">
+                                            @{
+                                                var iterationCount = 0;
+                                            }
+                                            @foreach (var category in @ViewBag.VideoCategories)
+                                            {
+                                                ++iterationCount;
+                                                if (iterationCount == 1)
+                                                {
+                                                    @Html.Raw("<div class=\"col-lg-2 col-xs-6 col-4\">");
+                                                }
+
+                                                <div class="custom-control custom-checkbox">
+                                                    <input type="checkbox" class="custom-control-input" name="Category" value="@category" id="checkBox-@category" />
+                                                    <label class="custom-control-label" for="checkBox-@category">@category</label>
+                                                </div>
+
+                                                if (iterationCount % 6 == 0)
+                                                {
+                                                    @Html.Raw("</div><div class=\"col-lg-2 col-xs-6 col-4\">");
+                                                }
+                                            }
+                                        </div>
+                                    </div>
+                                    <div class="osahan-area text-center my-3">
+                                        <button type="submit" id="uploadButton" class="btn btn-outline-primary">Upload</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <footer class="sticky-footer" style="margin-left: 0px !important;">
+                            <div class="container">
+                                <div class="row no-gutters">
+                                    <div class="col-lg-6 col-sm-6">
+                                        <p class="mt-1 mb-0">
+                                            &copy; Copyright 2021 <strong class="text-dark">Company Name</strong>. All
+                                            Rights Reserved<br>
+                                        </p>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </footer>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <a class="scroll-to-top rounded" href="#page-top">
+            <i class="fas fa-angle-up"></i>
+        </a>
+        <script>
+            $("#loader").hide();
+            const fileInput = document.getElementById('fileInput');
+            const dropArea = document.getElementById('drop-area');
+            const uploadProgress = document.getElementById('upload-progress');
+            const uploadButton = document.getElementById('uploadButton');
+            uploadButton.disabled = false;
+
+
+            dropArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropArea.classList.add('dragover');
+            });
+
+            dropArea.addEventListener('dragleave', () => {
+                dropArea.classList.remove('dragover');
+            });
+
+            dropArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropArea.classList.remove('dragover');
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    fileInput.files = files;
+                    uploadFile();
+                }
+            });
+
+            dropArea.addEventListener('click', () => {
+                fileInput.click();
+            });
+
+            fileInput.addEventListener('change', () => {
+                uploadFile();
+            });
+
+            function uploadFile() {
+                const file = fileInput.files[0];
+                if (file) {
+                    if (file.type === 'video/mp4' && file.size <= 250 * 1024 * 1024) {
+                        let fileDetailsScreen = document.getElementById('file-details-screen');
+                        let uploadScreen = document.getElementById('upload-screen');
+                        uploadScreen.style.opacity = '0';
+                        uploadScreen.style.visibility = 'hidden';
+                        uploadScreen.style.display = 'none';
+                        uploadScreen.style.pointerEvents = 'none';
+
+                        fileDetailsScreen.style.opacity = '1';
+                        fileDetailsScreen.style.pointerEvents = 'auto';
+                        fileDetailsScreen.style.visibility = 'visible';
+                        fileDetailsScreen.style.display = 'block';
+
+                        const videoSizeElement = document.querySelector('.osahan-size');
+                        const videoSizeInMB = (file.size / (1024 * 1024)).toFixed(2);
+                        videoSizeElement.textContent = videoSizeInMB + ' MB';
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            text: 'Please select a valid MP4 file (max 250MB).'
+                        });
+                    }
+                }
+            }
+
+            function simulatePageLoadProgress() {
+                const totalSteps = 100;
+                const stepDuration = 50;
+                const totalDuration = 5000;
+                const increment = totalSteps / (totalDuration / stepDuration);
+
+                let currentStep = 0;
+                const intervalId = setInterval(() => {
+                    currentStep += increment;
+
+                    if (currentStep >= totalSteps) {
+                        clearInterval(intervalId);
+                        currentStep = totalSteps;
+                    }
+
+                    const progress = (currentStep / totalSteps) * 100;
+                    uploadProgress.style.width = progress + '%';
+                }, stepDuration);
+            }
+
+            function simulateFailedUpload(message) {
+                const totalSteps = 100;
+                const stepDuration = 50;
+                const totalDuration = 5000;
+                const decrement = totalSteps / (totalDuration / stepDuration);
+
+                let currentStep = totalSteps;
+                const intervalId = setInterval(() => {
+                    currentStep -= decrement;
+
+                    if (currentStep <= 0) {
+                        clearInterval(intervalId);
+                        currentStep = 0;
+                        Swal.fire({
+                            icon: 'error',
+                            text: 'Upload failed. ' + message
+                        });
+                    }
+
+                    const progress = (currentStep / totalSteps) * 100;
+                    uploadProgress.style.width = progress + '%';
+                }, stepDuration);
+            }
+
+
+
+            const videoTitleInput = document.getElementById("VideoTitle");
+            const osahanTitle = document.querySelector(".osahan-title");
+
+            videoTitleInput.addEventListener("input", function () {
+                if (this.value.length > 0) {
+                    osahanTitle.textContent = this.value;
+                } else {
+                    osahanTitle.textContent = "Video Title Goes Here";
+                }
+            });
+
+            function checkChkBox() {
+                const checkboxes = document.querySelectorAll('input[type="checkbox"][name="Category"]:checked');
+                console.log('Length ' + checkboxes.length);
+                if (checkboxes.length < 1 || checkboxes == null || checkboxes == undefined) {
+                    document.getElementById('categoryValidation').textContent = '*';
+                    return false;
+                }
+                else if (checkboxes.length > 6) {
+                    document.getElementById('categoryValidation').textContent = 'Please select categories between 1 to 6 before submitting.';
+                    return false;
+                }
+                else {
+                    document.getElementById('categoryValidation').textContent = '';
+                    uploadButton.disabled = true;
+                }
+            }
+
+            function monitorUploadProgress(progressCallback) {
+                let progress = 0;
+                const interval = setInterval(() => {
+                    progress += 10; 
+                    if (progress > 100) {
+                        clearInterval(interval);
+                        progressCallback(true);
+                    } else {
+                        progressCallback(false, progress);
+                    }
+                }, 1000); 
+            }
+
+            function startUpload(data) {
+                if (data.success == true) {
+                    monitorUploadProgress((isComplete, progress) => {
+                        updateProgressBar(progress);
+                        if (isComplete) {
+                            fnSuccess(data);
+                        } else {
+                            console.log(`Upload progress: ${progress}%`);
+                        }
+                    });
+                } else {
+                    simulateFailedUpload(data.message);
+                }   
+            }
+
+            function updateProgressBar(progress) {
+                uploadProgress.style.width = `${progress}%`;
+            }
+
+            function fnSuccess(data) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Video Uploaded',
+                    html: '<p>Video Uploaded Completed successfully!</p>' +
+                        '<a href="' + data.videourl + '" target="blank"> Video Url</a>',
+                    confirmButtonText: 'Ok'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        document.getElementById('categoryForm').reset();
+                        document.getElementById('fileInput').value = '';
+
+                        const osahanTitle = document.querySelector(".osahan-title");
+                        osahanTitle.textContent = "Video Title Goes Here";
+
+                        document.getElementById('categoryValidation').textContent = '';
+
+                        uploadProgress.style.width = '0%';
+
+                        let fileDetailsScreen = document.getElementById('file-details-screen');
+                        let uploadScreen = document.getElementById('upload-screen');
+                        fileDetailsScreen.style.opacity = '0';
+                        fileDetailsScreen.style.visibility = 'hidden';
+                        fileDetailsScreen.style.display = 'none';
+                        fileDetailsScreen.style.pointerEvents = 'none';
+
+                        uploadScreen.style.opacity = '1';
+                        uploadScreen.style.visibility = 'visible';
+                        uploadScreen.style.display = 'block';
+                        uploadScreen.style.pointerEvents = 'auto';
+                        uploadButton.disabled = false;
+                    }
+                });
+            }
+
+        </script>
+        <script src="~/vendor/jquery/jquery.min.js" type="149592abd0ad87966f14ccd8-text/javascript"></script>
+        <script src="~/vendor/bootstrap/js/bootstrap.bundle.min.js" type="149592abd0ad87966f14ccd8-text/javascript"></script>
+        <script src="~/js/custom.js" type="149592abd0ad87966f14ccd8-text/javascript"></script>
+    </body>
+
+</html>
+
+}
